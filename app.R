@@ -2,6 +2,14 @@ library(shiny)
 library(shinyWidgets)
 library(bslib)
 library(htmltools)
+library(readxl)
+library(tidyverse)
+
+## Temporary data
+df <- read_xlsx("untitled.xlsx") |> 
+  mutate(dateid01 = as.double(str_sub(dateid01, 1,4)))
+
+glimpse(df)
 
 ## UI Elements
 input_ui <- list(fileInput(inputId = "file_input", label = "Input MFMOD solve (*.xlsx)", accept = ".xlsx", width = "100%"),
@@ -10,7 +18,7 @@ input_ui <- list(fileInput(inputId = "file_input", label = "Input MFMOD solve (*
               actionButton(inputId = "import", label = "Import", width = "100%"))
 gdp_ui <- radioButtons(inputId = "gdp_type", label = "Market or factor prices", choices = c("MKTP", "FCT"), selected = "MKTP", inline = T)
 nia_vol_ui <- list(
-  sliderInput(inputId = "nia_vol_years", label = NULL, min = 1960, max = 2050, value = c(2000, 2030), step = 1, sep = "", ticks = T, width = "100%"),
+  sliderInput(inputId = "nia_vol_years", label = NULL, min = 1980, max = 2050, value = c(2000, 2030), step = 1, sep = "", ticks = T, width = "100%"),
   awesomeRadio(inputId = "nia_radio", label = "Buttons", choices = c("Choice 1", "Choice 2", "Choice 3"), selected = "Choice 2", inline = T, width = "100%"),
   awesomeCheckboxGroup(inputId = "nia_checkbox", label = "Items", choices = c("Item 1", "Item 2", "Item 3", "Item 4"), selected = c("Item 1", "Item 3"), inline = T, width = "100%")
 )
@@ -21,7 +29,7 @@ nia_vol_sidebar <- sidebar(title = "Filters", nia_vol_ui)
 
 ## Cards
 input_content <- list(p("Please import an MFMOD solution that has been exported to Excel (*.xlsx). Input the year when history ends, and press", tags$em("Import."), "Then move on to the next tabs."),
-                      card(card_header("Dataset"), card_body("Dataset")))
+                      card(card_header("Dataset"), card_body(DT::DTOutput("dataset"))))
 summary_cards <- list(navset_card_underline(title = "Real GDP Growth", nav_panel("Market Prices", "MKTP plot"), nav_panel("Factor Prices", "FCT plot")),
                       card(card_header("Inflation"), card_body("Text")),
                       card(card_header("Fiscal"), card_body("Text")),
@@ -46,6 +54,20 @@ ui <- page_navbar(
 )
 
 server <- function(input, output, session) {
+  
+  df_reactive <- reactive({
+    df
+  })
+  
+  output$dataset <- DT::renderDataTable({
+    DT::datatable(df_reactive(),
+                  options = list(
+                    columnDefs = list(list(visible=FALSE, targets=c(13))),
+                    searching = FALSE,
+                    ordering = FALSE
+                  ),
+                  rownames = FALSE)
+  })
   
 }
 
