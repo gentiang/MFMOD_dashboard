@@ -20,25 +20,28 @@ input_sidebar <- sidebar(title = "Data Input", input_ui)
 nia_vol_sidebar <- sidebar(title = "Filters", nia_vol_ui)
 
 ## Cards
-input_content <- p("Please import an MFMOD solution that has been exported to Excel (*.xlsx). Input the year when history ends, and press", tags$em("Import."), "Then move on to the next tabs.")
-summary_cards <- list(navset_card_pill(title = "Real GDP Growth", nav_panel("Market Prices", "MKTP plot"), nav_panel("Factor Prices", "FCT plot")),
+input_content <- list(p("Please import an MFMOD solution that has been exported to Excel (*.xlsx). Input the year when history ends, and press", tags$em("Import."), "Then move on to the next tabs."),
+                      card(card_header("Dataset"), card_body("Dataset")))
+summary_cards <- list(navset_card_underline(title = "Real GDP Growth", nav_panel("Market Prices", "MKTP plot"), nav_panel("Factor Prices", "FCT plot")),
                       card(card_header("Inflation"), card_body("Text")),
                       card(card_header("Fiscal"), card_body("Text")),
                       card(card_header("Balance of Payments"), card_body("Text")),
                       card(card_header("Emissions"), card_body("Text")))
+info_content <- list(p("This navigation tab will contain general information about the app."),
+                     p("Gentian Gashi, 2014"))
 
 ui <- page_navbar(
   title = "MFMOD Solve Dashboard",
   nav_panel(title = "Input", layout_sidebar(sidebar = input_sidebar, input_content)),
-  nav_panel(title = "Summary", layout_columns(summary_cards[[1]], summary_cards[[2]]),
-            layout_columns(summary_cards[[3]], summary_cards[[4]], summary_cards[[5]])),
+  nav_panel(title = "Summary", 
+            layout_columns(summary_cards[[1]], summary_cards[[2]], summary_cards[[3]], summary_cards[[4]], summary_cards[[5]], col_widths = c(8,4, 4, 4, 4), row_heights = c(1.5,1))),
   nav_menu(title = "Analysis", nav_panel(title = "NIA-VOL", layout_sidebar(sidebar = nia_vol_sidebar, p("In-depth analysis of indicators in NIA-VOL."))),
            nav_panel(title = "NIA-VAL", p("NIA-VAL")),
            nav_panel(title = "NIA-P", p("NIA-P")),
            nav_panel(title = "Fical", p("Fiscal")),
            nav_panel(title = "BoP", p("Balance of Payments"))),
   nav_spacer(),
-  nav_panel(title = "Info"),
+  nav_panel(title = "Info", info_content),
   fillable_mobile = T
 )
 
